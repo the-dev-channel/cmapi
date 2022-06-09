@@ -1,0 +1,23 @@
+{
+  "name": "cmapi",
+  "version": "1.0.0",
+  "description": "MPPClone custom message API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-dev-channel/cmapi.git"
+  },
+  "keywords": [
+    "mppclone",
+    "mpp"
+  ],
+  "author": "Hri7566",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/the-dev-channel/cmapi/issues"
+  },
+  "homepage": "https://github.com/the-dev-channel/cmapi#readme"
+}
