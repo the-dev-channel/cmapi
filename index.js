@@ -48,7 +48,7 @@ class cmapi extends events.EventEmitter {
 
         this.on('?status', msg => {
             if (!this.isTrusted(msg._id)) return;
-        })
+        });
     }
 
     kickban(_id, ms) {
