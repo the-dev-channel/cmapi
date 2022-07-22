@@ -5,24 +5,38 @@
  * Main module
  */
 
-const events = require('events');
+if (typeof globalThis.navigator !== 'undefined') {
+    const isBrowser = true;
+} else {
+    const isBrowser = false;
+}
+
+const { EventEmitter } = require('events');
 
 let messages = require('./src/messages');
 
-class cmapi extends events.EventEmitter {
+class cmapi extends EventEmitter {
     constructor(client) {
         super();
         this.client = client;
 
         this.whitelist = [];
+
+        this.#bindEventListeners();
+
+        this.isSubscribed = false;
     }
 
-    bindEventListeners() {
-        this.client.sendArray([{m: "+custom"}]);
+    #bindEventListeners() {
+        this.client.on('hi', msg => {
+            this.subscribe();
+        });
+        
+        this.subscribe();
 
         this.client.on('custom', msg => {
             msg.data._original_sender = msg.p;
-            this.emit(msg.data.m, msg.data);
+            this.emit(msg.data.m, msg.data, this.isTrusted(msg.p));
         });
 
         this.on('?chown', msg => {
@@ -70,6 +84,32 @@ class cmapi extends events.EventEmitter {
     isTrusted(_id) {
         return this.whitelist.includes(_id);
     }
+
+    sendArray(arr, target) {
+        let msgs = [];
+        for (let j of arr) {
+            msgs.push({
+                m: 'custom',
+                data: j,
+                target: target
+            });
+        }
+
+        this.client.sendArray(msgs);
+    }
+
+    subscribe() {
+        if (!this.isSubscribed) {
+            this.client.sendArray([{m: "+custom"}]);
+        }
+    }
 }
 
-module.exports = cmapi;
+if (typeof module !== 'undefined') {
+    module.exports = cmapi;
+}
+
+if (typeof globalThis.navigator !== 'undefined') {
+    //? most likely browser
+    globalThis.cmapi = cmapi;
+}
