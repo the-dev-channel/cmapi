@@ -5,24 +5,28 @@
  * Main module
  */
 
-if (typeof globalThis.navigator !== 'undefined') {
-    const isBrowser = true;
-} else {
-    const isBrowser = false;
+let isBrowser = true;
+ 
+if (typeof process === 'object') {
+    if (typeof process.versions === 'object') {
+        if (typeof process.versions.node !== 'undefined') {
+            isBrowser = false;
+        }
+    }
 }
 
 const { EventEmitter } = require('events');
 
-let messages = require('./src/messages');
-
 class cmapi extends EventEmitter {
     constructor(client) {
         super();
+
         this.client = client;
-
-        this.whitelist = [];
-
         this.#bindEventListeners();
+        this.age = Date.now();
+        this.status_data = {};
+
+        this.knownSubscribers = [];
 
         this.isSubscribed = false;
     }
@@ -30,59 +34,46 @@ class cmapi extends EventEmitter {
     #bindEventListeners() {
         this.client.on('hi', msg => {
             this.subscribe();
+            this.age = Date.now();
         });
-        
-        this.subscribe();
 
         this.client.on('custom', msg => {
             msg.data._original_sender = msg.p;
-            this.emit(msg.data.m, msg.data, this.isTrusted(msg.p));
+            this.emit(msg.data.m, msg.data);
         });
 
-        this.on('?chown', msg => {
-            if (!this.isTrusted(msg._id)) return;
-            let id = msg.id;
-            if (!id) id = msg._id;
-            if (!id) id = msg._original_sender;
-            if (!id) return;
-            this.client.sendArray([{
-                m: "?chown", id
-            }]);
+        this.client.on('participant added', msg => {
+            this.sendArray([{
+                m: '?cmapi_info'
+            }], { mode: 'id', id: msg._id, global: false });
         });
 
-        this.on('?kickban', msg => {
-            if (!this.isTrusted(msg._id)) return;
-            let id = msg.id;
-            if (!id) id = msg._id;
-            if (!id) return;
-            this.client.sendArray([{
-                m: "?kickban", _id: id, ms: msg.ms
-            }]);
+        this.on('?cmapi_info', msg => {
+            this.sendArray([{
+                m: 'cmapi_info', isBrowser,
+                age: Date.now() - this.age,
+                status_data: this.status_data,
+            }], { mode: 'id', id: msg._original_sender, global: false });
         });
 
-        this.on('?status', msg => {
-            if (!this.isTrusted(msg._id)) return;
-        });
-    }
-
-    kickban(_id, ms) {
-        if (!_id) return;
-        messages.get('?kickban').send(this.client, {
-            _id: _id,
-            ms: ms
+        this.on('cmapi_info', msg => {
+            if (typeof this.findSubscriberByID(msg._original_sender) == 'undefined') {
+                this.knownSubscribers.push({
+                    id: msg._original_sender,
+                    _id: msg._original_sender,
+                    isBrowser: msg.isBrowser,
+                    status_data: msg.status_data
+                });
+            }
         });
     }
 
-    trust(_id) {
-        this.whitelist += _id;
-    }
-
-    untrust(_id) {
-        this.whitelist -= _id;
-    }
-
-    isTrusted(_id) {
-        return this.whitelist.includes(_id);
+    findSubscriberByID(id) {
+        for (let s of this.knownSubscribers) {
+            if (s.id == id) {
+                return s;
+            }
+        }
     }
 
     sendArray(arr, target) {
@@ -100,7 +91,13 @@ class cmapi extends EventEmitter {
 
     subscribe() {
         if (!this.isSubscribed) {
-            this.client.sendArray([{m: "+custom"}]);
+            this.client.sendArray([{ m: "+custom" }]);
+        }
+    }
+
+    unsubscribe() {
+        if (this.isSubscribed) {
+            this.client.sendArray([{ m: '-custom' }]);
         }
     }
 }
@@ -109,7 +106,11 @@ if (typeof module !== 'undefined') {
     module.exports = cmapi;
 }
 
-if (typeof globalThis.navigator !== 'undefined') {
-    //? most likely browser
+// if (typeof globalThis.navigator !== 'undefined') {
+//     //? most likely browser
+//     globalThis.cmapi = cmapi;
+// }
+
+if (isBrowser) {
     globalThis.cmapi = cmapi;
 }

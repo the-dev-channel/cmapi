@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const Client = require('mppclone-client');
 const cmapi = require('../');
-const crypto = require('crypto');
 
 const client = new Client("wss://mppclone.com:8443", process.env.MPPCLONE_TOKEN);
 
@@ -22,16 +21,40 @@ setInterval(() => {
 
 const cm = new cmapi(client);
 
-let hash = crypto.createHash('sha3-256');
-hash.update('7566');
-let hashResult = hash.digest();
-console.log(hashResult.toString('hex'));
+let password = '7566';
 
-cm.on('whitelist+', (msg, whitelisted) => {
-    if (!msg['password']) return;
-    if (msg.password !== hashResult.toString('hex')) return;
+function isWhitelisted(id) {
+    if (whitelist.indexOf(id) !== -1) return true;
+}
 
-    cm.trust(msg._original_sender);
+function whitelistAdd(id) {
+    console.log(`Adding ${id} to the whitelist`);
+    if (!isWhitelisted(id)) {
+        whitelist.push(id);
+    } else {
+        console.log('ID is already in the whitelist');
+    }
+}
 
-    console.log(cm.isTrusted(msg._original_sender));
+function whitelistRemove(id) {
+    console.log(`Removing ${id} from the whitelist`);
+    if (isWhitelisted(id)) {
+        whitelist.splice(whitelist.indexOf(id), 1);
+    } else {
+        console.log('ID is not in the whitelist');
+    }
+}
+
+cm.on('whitelist+', msg => {
+    if (!isWhitelisted(msg._original_sender)) {
+        if (!msg['password']) return;
+        if (msg.password !== password) return;
+    }
+
+    whitelistAdd(msg.id || msg._original_sender);
+});
+
+cm.on('whitelist-', msg => {
+    if (!isWhitelisted(msg._original_sender)) return;
+    whitelistRemove(msg.id || msg._original_sender);
 });
