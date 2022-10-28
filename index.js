@@ -22,13 +22,17 @@ class cmapi extends EventEmitter {
         super();
 
         this.client = client;
-        this.#bindEventListeners();
         this.age = Date.now();
         this.status_data = {};
-
+        
+        if (this.client.isConnected()) {
+            this.subscribe();
+        }
+        
         this.knownSubscribers = [];
-
         this.isSubscribed = false;
+        
+        this.#bindEventListeners();
     }
 
     #bindEventListeners() {
@@ -46,6 +50,12 @@ class cmapi extends EventEmitter {
             this.sendArray([{
                 m: '?cmapi_info'
             }], { mode: 'id', id: msg._id, global: false });
+        });
+
+        this.client.on('participant removed', msg => {
+            if (typeof this.findSubscriberByID(msg._id) !== 'undefined') {
+                this.knownSubscribers.splice(this.knownSubscribers.indexOf(this.findSubscriberByID(msg._id)), 1);
+            }
         });
 
         this.on('?cmapi_info', msg => {
