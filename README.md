@@ -8,28 +8,6 @@ To use this module, first instantiate it on the client, then you're free to use 
 
 The module can detect whether or not your client is already connected, so you can choose to construct it at any point in time, but only once per client.
 
-### Browser
-
-If you're using a userscript manager such as [tampermonkey](https://www.tampermonkey.net/), you can add a `@require` tag to your userscript header. Otherwise, you can use webpack or a script tag.
-
-```js
-// @require     file:///Z:/cmapi/dist/cmapi.dist.js
-```
-
-The usage is the same as Node, however, you don't have to create a client.
-
-```js
-MPP.cmapi = new cmapi(MPP.client);
-
-MPP.client.on('hi', msg => {
-    console.log('Connected to server');
-});
-
-MPP.cmapi.on('hello', msg => {
-    console.log('Received hello');
-});
-```
-
 ### Node
 
 ```js
@@ -50,4 +28,30 @@ cmapi.on('hello', msg => {
     console.log('Received hello');
 });
 
+```
+
+### Browser
+
+If you're using a userscript manager such as [tampermonkey](https://www.tampermonkey.net/), you can add a `@require` tag to your userscript header. Otherwise, you can use webpack or a script tag.
+
+```js
+// @require     https://unpkg.com/mppclone-cmapi@latest/dist/cmapi.dist.js
+```
+
+```html
+<script src="https://unpkg.com/mppclone-cmapi@latest/dist/cmapi.dist.js"></script>
+```
+
+The usage is the same as Node, however, you don't have to create a client.
+
+```js
+MPP.cmapi = new cmapi(MPP.client);
+
+MPP.client.on('hi', msg => {
+    console.log('Connected to server');
+});
+
+MPP.cmapi.on('hello', msg => {
+    console.log('Received hello');
+});
 ```

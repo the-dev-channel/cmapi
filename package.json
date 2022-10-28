@@ -1,6 +1,6 @@
 {
   "name": "mppclone-cmapi",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MPPClone custom message API",
   "main": "index.js",
   "scripts": {
