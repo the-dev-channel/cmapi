@@ -16,18 +16,16 @@ If you're using a userscript manager such as [tampermonkey](https://www.tampermo
 // @require     file:///Z:/cmapi/dist/cmapi.dist.js
 ```
 
+The usage is the same as Node, however, you don't have to create a client.
+
 ```js
-const client = new Client("wss://mppclone.com:8443", process.env.MPPCLONE_TOKEN);
-const cm = new cmapi(client);
+MPP.cmapi = new cmapi(MPP.client);
 
-client.start();
-client.setChannel('test/awkward');
-
-client.on('hi', msg => {
+MPP.client.on('hi', msg => {
     console.log('Connected to server');
 });
 
-cmapi.on('hello', msg => {
+MPP.cmapi.on('hello', msg => {
     console.log('Received hello');
 });
 ```
@@ -36,6 +34,7 @@ cmapi.on('hello', msg => {
 
 ```js
 const cmapi = require('mppclone-cmapi');
+const Client = require('mppclone-client');
 
 const client = new Client("wss://mppclone.com:8443", process.env.MPPCLONE_TOKEN);
 const cm = new cmapi(client);
