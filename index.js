@@ -121,12 +121,14 @@ class cmapi extends EventEmitter {
     subscribe() {
         if (!this.isSubscribed) {
             this.client.sendArray([{ m: "+custom" }]);
+            this.isSubscribed = true;
         }
     }
 
     unsubscribe() {
         if (this.isSubscribed) {
             this.client.sendArray([{ m: '-custom' }]);
+            this.isSubscribed = false;
         }
     }
 }
