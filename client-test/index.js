@@ -45,6 +45,10 @@ function whitelistRemove(id) {
     }
 }
 
+cm.on('ping', msg => {
+    cm.sendArray([{m: 'pong'}], msg._original_sender, true);
+})
+
 cm.on('whitelist+', msg => {
     if (!isWhitelisted(msg._original_sender)) {
         if (!msg['password']) return;

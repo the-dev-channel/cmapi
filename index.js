@@ -86,8 +86,27 @@ class cmapi extends EventEmitter {
         }
     }
 
-    sendArray(arr, target) {
+    sendArray(arr, target, global = false) {
         let msgs = [];
+        
+        if (typeof target === 'string') {
+            if (target == "subscribed") {
+                target = {
+                    mode: 'id',
+                    id: target,
+                    global
+                }
+            }
+        }
+
+        if (Array.isArray(target)) {
+            target = {
+                mode: 'ids',
+                ids: target,
+                global
+            }
+        }
+
         for (let j of arr) {
             msgs.push({
                 m: 'custom',
