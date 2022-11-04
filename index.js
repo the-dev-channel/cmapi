@@ -15,9 +15,15 @@ if (typeof process === 'object') {
     }
 }
 
-const { EventEmitter } = require('events');
+let EventEmitter;
 
-class cmapi extends EventEmitter {
+if (!isBrowser) {
+    EventEmitter = require('events').EventEmitter;
+} else {
+    EventEmitter = globalThis.EvenEmitter;
+}
+
+class cmapi extends (EventEmitter || globalThis.EventEmitter) {
     constructor(client) {
         super();
 

@@ -46,6 +46,7 @@ function whitelistRemove(id) {
 }
 
 cm.on('ping', msg => {
+    console.log('Received ping');
     cm.sendArray([{m: 'pong'}], msg._original_sender, true);
 })
 
