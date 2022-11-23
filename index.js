@@ -98,6 +98,11 @@ class cmapi extends (EventEmitter || globalThis.EventEmitter) {
         if (typeof target === 'string') {
             if (target == "subscribed") {
                 target = {
+                    mode: target,
+                    global
+                }
+            } else {
+                target = {
                     mode: 'id',
                     id: target,
                     global
