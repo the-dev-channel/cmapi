@@ -4,7 +4,7 @@
 
 ## UPDATE
 
-Apparently unpkg is terrible, so use `https://cdn.jsdelivr.net/npm/mppclone-cmapi@1.6.0/dist/cmapi.dist.js` instead.
+Apparently unpkg is terrible, so use `https://cdn.jsdelivr.net/npm/mppclone-cmapi@latest/dist/cmapi.dist.js` instead.
 
 ## Usage
 
