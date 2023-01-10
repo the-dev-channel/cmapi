@@ -2,6 +2,10 @@
 
 **cmapi** stands for ***c***ustom ***m***essage ***api***. This module is meant to be used on [MPPClone](https://mppclone.com). It is meant to make the use of custom messages easier.
 
+## UPDATE
+
+Apparently unpkg is terrible, so use `https://cdn.jsdelivr.net/npm/mppclone-cmapi@1.6.0/dist/cmapi.dist.js` instead.
+
 ## Usage
 
 To use this module, first instantiate it on the client, then you're free to use it as you wish.
